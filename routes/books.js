@@ -16,8 +16,10 @@ router.use((req, res, next) => {
 });
 
 router.post('/', auth, multer, booksCtrl.createBook);
+router.post('/:id/rating', auth, booksCtrl.rateBook);
 router.delete('/:id', auth, booksCtrl.deleteBook);
 router.put('/:id', auth, multer, booksCtrl.modifyBook);
+router.get('/bestrating', booksCtrl.getBestBooks);
 router.get('/:id', booksCtrl.getOneBook);
 router.get('/', booksCtrl.getAllBooks);
 
