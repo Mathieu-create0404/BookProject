@@ -3,14 +3,31 @@ const fs = require('fs');
 
 exports.createBook = (req, res, next) => {
     const bookObject = JSON.parse(req.body.book);
+    const submittedRatings = Array.isArray(bookObject.ratings) ? bookObject.ratings : [];
+    const submittedGrade = submittedRatings[0] && submittedRatings[0].grade;
+    if (submittedGrade === undefined || submittedGrade === '') {
+        return res.status(400).json({ error: 'La note est obligatoire !' });
+    }
+
+    const rating = Number(submittedGrade);
+    if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+        return res.status(400).json({
+            error: 'La note doit être un nombre entier compris entre 1 et 5 !'
+        });
+    }
+
     delete bookObject._id;
     delete bookObject._userId;
+    delete bookObject.ratings;
+    delete bookObject.averageRating;
+    const ratings = [{ userId: req.auth.userId, grade: rating }];
+
     const book = new Books({
         ...bookObject,
         userId: req.auth.userId,
         imageUrl: `${req.protocol}://${req.get('host')}/images/${req.file.filename}`,
-        ratings: [],
-        averageRating: 0,
+        ratings,
+        averageRating: rating,
     });
     book.save()
         .then(() => { res.status(201).json({ message: 'Livre enregistré !' }) })
