@@ -113,7 +113,7 @@ exports.rateBook = (req, res, next) => {
                 const total = book.ratings.reduce((accumulator, rating) => {
                 return accumulator + rating.grade;
                 }, 0);
-                book.averageRating = total / book.ratings.length;
+                book.averageRating = Math.round((total / book.ratings.length) * 10) / 10;
                 
                 book.save()
                     .then(() => res.status(200).json(book))
